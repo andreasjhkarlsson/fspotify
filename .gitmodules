@@ -1,0 +1,4 @@
+[submodule "lib/JsonNet.FSharp"]
+	path = lib/JsonNet.FSharp
+	url = https://github.com/rotmoset/JsonNet.FSharp
+	branch = feature/map
