@@ -24,16 +24,13 @@ module Paging =
             | None ->
                 None         
 
-    let rec all (paging: 'a Paging) =
+    let rec asSeq (paging: 'a Paging) =
         seq {
             yield! paging.items
-            match paging.next with
-            | Some (Url url) ->
-                let nextPage =
-                    Request.create url
-                    |> Request.parse<'a Paging,_>
-                    |> Request.send
-                yield! all nextPage
+
+            match next paging with
+            | Some paging ->
+                yield! asSeq paging
             | None ->
                 ()
         }

@@ -53,7 +53,8 @@ let main argv =
     |> withLimit 2
     |> withMarket (Market "SE")
     |> Request.send
-    |> Paging.all
+    |> Paging.asSeq
+    |> Seq.take 5
     |> Seq.iter (fun track -> printfn "Track: %s" track.name)
 
     printfn "-- Artist albums --"
