@@ -28,6 +28,11 @@ let printArtist (artist: Artist) =
 [<EntryPoint>]
 let main argv = 
 
+
+    let token =
+        Authorization.ClientCredentials "<client-id>" "<client-secret>"
+        |> Request.send     
+    
     let hospice = SpotifyId "13sfns6Tw1Nkv7Wb3xDNvH"
 
     let letsgetoutofthiscountry = SpotifyId "5SIbhjUUfpLeH9yZxfxJZm"
@@ -52,7 +57,7 @@ let main argv =
     Album.tracks letsgetoutofthiscountry
     |> withLimit 2
     |> withMarket (Market "SE")
-    |> Request.send
+    |> Paging.page
     |> Paging.asSeq
     |> Seq.take 5
     |> Seq.iter (fun track -> printfn "Track: %s" track.name)
@@ -60,9 +65,9 @@ let main argv =
     printfn "-- Artist albums --"
     Artist.albums cameraobscura
     |> withAlbumTypes [Appears_On; Album]
-    |> Request.send
-    |> (fun paging -> paging.items)
-    |> List.iter (fun album ->
+    |> Paging.page
+    |> Paging.asSeq
+    |> Seq.iter (fun album ->
         printfn "%s: %s" (AlbumType.asString album.album_type) album.name
     )
 
@@ -80,7 +85,19 @@ let main argv =
 
     printfn "-- Related artists --"
     Artist.related radiohead
+    |> Request.withAuthorization token
     |> Request.send
     |> List.iter printArtist
+
+    
+    Browse.newReleases
+    |> Request.withAuthorization token
+    |> Optionals.withLimit 30
+    |> Paging.page
+    |> Paging.asSeq
+    |> Seq.iter (fun album ->
+        printfn "%s" album.name
+    )
+    
 
     0 
