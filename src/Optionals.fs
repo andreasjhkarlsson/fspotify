@@ -8,6 +8,8 @@ module Optionals =
     
     let marketBuilder (Market market) = Request.QueryParameterBuilder("market",market)
 
+    let countryBuilder (Country country) = Request.QueryParameterBuilder("country",country)
+
     let limitBuilder (limit: int) = Request.QueryParameterBuilder("limit",string limit)
 
     let offsetBuilder (offset: int) = Request.QueryParameterBuilder("offset",string offset)
@@ -16,6 +18,7 @@ module Optionals =
         Request.QueryParameterBuilder("album_type",albumTypes |> List.map AlbumType.asString |> Misc.buildCommaList)
 
     type HasMarket = abstract member market: (Market -> Request.QueryParameterBuilder)
+    type HasCountry = abstract member country: (Country -> Request.QueryParameterBuilder)
     type HasLimit = abstract member limit: (int -> Request.QueryParameterBuilder)
     type HasOffset = abstract member offset: (int -> Request.QueryParameterBuilder)
     type HasAlbumTypes = abstract member albumTypes: (AlbumType list -> Request.QueryParameterBuilder)
@@ -23,7 +26,15 @@ module Optionals =
     type MarketOption () =
         interface HasMarket with member this.market = marketBuilder
 
+    type CountryOption () =
+        interface HasCountry with member this.country = countryBuilder
+
     type MarketOffsetAndLimitOption () =
+        inherit MarketOption ()
+        interface HasLimit with member this.limit = limitBuilder
+        interface HasOffset with member this.offset = offsetBuilder
+
+    type CountryOffsetAndLimitOption () =
         inherit MarketOption ()
         interface HasLimit with member this.limit = limitBuilder
         interface HasOffset with member this.offset = offsetBuilder
@@ -36,6 +47,8 @@ module Optionals =
     let inline withOptional<'a,'b,'c> fn (arg: 'c) (request: Request.Request<'a,'b>) = request |> Request.withOptionals (fun (inner) -> Request.build ((fn inner) arg))
 
     let inline withMarket market = withOptional (fun (o: 'a when 'a :> HasMarket) -> o.market) market
+
+    let inline withCountry country = withOptional (fun (o: 'a when 'a :> HasCountry) -> o.country) country
 
     let inline withLimit limit = withOptional (fun (o: 'a when 'a :> HasLimit) -> o.limit) limit
 
