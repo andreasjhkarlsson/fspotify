@@ -1,6 +1,8 @@
 ﻿namespace FSpotify
 
-type ErrorObject = {status: int; message: string}
+type ErrorObject = {status: string; message: string}
+
+type Token = {access_token: string; token_type: string; expires_in: int}
 
 type SpotifyId =
     |SpotifyId of string

@@ -19,7 +19,7 @@ type Artist = {
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Artist =
 
-    let artistsRequest = Request.createFromEndpoint "artists"
+    let artistsRequest = Request.createFromEndpoint Request.Get "artists"
 
     let artist (SpotifyId id) =
         artistsRequest

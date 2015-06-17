@@ -39,7 +39,7 @@ module Album =
             uri = album.uri
         }
 
-    let request = Request.createFromEndpoint "albums"
+    let request = Request.createFromEndpoint Request.Get "albums"
         
     let album (SpotifyId id) =
         request

@@ -27,7 +27,7 @@ type Track = {
 module Track =
     
 
-    let trackRequest = Request.createFromEndpoint "tracks"
+    let trackRequest = Request.createFromEndpoint Request.Get "tracks"
 
     let track (SpotifyId id) =
         trackRequest
