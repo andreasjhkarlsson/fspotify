@@ -1,5 +1,7 @@
 ﻿namespace FSpotify
 
+open Request
+
 type Paging<'a> = {
     items: 'a list
     href: Url
@@ -14,23 +16,30 @@ type Paging<'a> = {
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Paging =
     
-    let next (paging: 'a Paging) =
-            match paging.next with
-            | Some (Url url) ->
-                Request.create url
-                |> Request.parse<'a Paging,_> 
-                |> Request.send
-                |> Some               
-            | None ->
-                None         
+    type State<'a,'b> = {data: 'a Paging; next: Request<'a Paging,'b> option}
 
-    let rec asSeq (paging: 'a Paging) =
-        seq {
-            yield! paging.items
+    let page<'a,'b> (request: Request<'a Paging,'b>) =
+        request
+        |> Request.mapResponse (fun paging ->
+            {
+                data = paging
+                next = paging.next |> Option.map (fun (Url url) ->
+                        request |> Request.withUrl url
+                    )
+            }
+        )
+        |> Request.send
 
-            match next paging with
-            | Some paging ->
-                yield! asSeq paging
-            | None ->
-                ()
-        }
+    let rec asSeq {data = data; next = next} = seq {
+    
+        yield! data.items
+
+        match next with
+        | Some request ->
+            yield! request |> page |> asSeq
+        | None ->
+            ()
+    }
+
+
+     

@@ -7,18 +7,41 @@ open Serializing
 open System.Web
 open System
 
-exception SpotifyError of int*string
+exception SpotifyError of string*string
 
 module Request =
+
+    type HttpVerb = |Get |Post
 
     type ResponseBuilder<'a> = string -> 'a
 
     type Request<'a,'b> = {
+        verb: HttpVerb
         path: string
         queryParameters: Map<string,string>
+        headers: Map<string,string>
+        body: string
         responseMapper: ResponseBuilder<'a>
         optionals: 'b
     }
+
+    let withUrl url (request: Request<'a,'b>) =
+        let uri = new Uri(url)
+        let path = uri.GetLeftPart(UriPartial.Path)
+        let queryArgs =
+            if uri.Query.StartsWith "?" then
+                uri.Query.Substring(1).Split('&')
+                |> Array.map (fun str -> str.Split('='))
+                |> Array.map (Array.map Uri.UnescapeDataString)
+                |> Array.map (fun keyValue -> keyValue.[0],keyValue.[1])
+                |> Array.toList
+                |> List.foldBack ((<||) Map.add)
+                <| request.queryParameters
+            else
+                request.queryParameters
+
+        {request with path = path; queryParameters = queryArgs}
+        
 
 
     // This is a magical little function. It applies a "builder" object to a request, transforming it.
