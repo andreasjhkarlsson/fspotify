@@ -3,25 +3,27 @@
 open System.Reflection
 open Microsoft.FSharp.Reflection
 
-
 module Optionals =
     
-    let marketBuilder (Market market) = Request.QueryParameterBuilder("market",market)
+    type Optional<'a> = 'a -> Request.QueryParameterBuilder
 
-    let countryBuilder (Country country) = Request.QueryParameterBuilder("country",country)
+    let builder name = fun data -> Request.QueryParameterBuilder(name,data)
 
-    let limitBuilder (limit: int) = Request.QueryParameterBuilder("limit",string limit)
+    let marketBuilder (Market market) = builder "market" market
 
-    let offsetBuilder (offset: int) = Request.QueryParameterBuilder("offset",string offset)
+    let countryBuilder (Country country) = builder "country" country
 
-    let albumTypesBuilder (albumTypes: AlbumType list) =
-        Request.QueryParameterBuilder("album_type",albumTypes |> List.map AlbumType.asString |> Misc.buildCommaList)
+    let limitBuilder (limit: int) = builder "limit" (string limit)
 
-    type HasMarket = abstract member market: (Market -> Request.QueryParameterBuilder)
-    type HasCountry = abstract member country: (Country -> Request.QueryParameterBuilder)
-    type HasLimit = abstract member limit: (int -> Request.QueryParameterBuilder)
-    type HasOffset = abstract member offset: (int -> Request.QueryParameterBuilder)
-    type HasAlbumTypes = abstract member albumTypes: (AlbumType list -> Request.QueryParameterBuilder)
+    let offsetBuilder (offset: int) = builder "offset" (string offset)
+
+    let albumTypesBuilder (albumTypes: AlbumType list) = builder "album_type" (albumTypes |> List.map AlbumType.asString |> Misc.buildCommaList)
+
+    type HasMarket = abstract member market: Market Optional
+    type HasCountry = abstract member country: Country Optional
+    type HasLimit = abstract member limit: int Optional
+    type HasOffset = abstract member offset: int Optional
+    type HasAlbumTypes = abstract member albumTypes: AlbumType list Optional
 
     type MarketOption () =
         interface HasMarket with member this.market = marketBuilder
@@ -46,12 +48,14 @@ module Optionals =
 
     let inline withOptional<'a,'b,'c> fn (arg: 'c) (request: Request.Request<'a,'b>) = request |> Request.withOptionals (fun (inner) -> Request.build ((fn inner) arg))
 
-    let inline withMarket market = withOptional (fun (o: 'a when 'a :> HasMarket) -> o.market) market
+    let withMarket market = withOptional (fun (o: #HasMarket) -> o.market) market
 
-    let inline withCountry country = withOptional (fun (o: 'a when 'a :> HasCountry) -> o.country) country
+    let withCountry country = withOptional (fun (o: #HasCountry ) -> o.country) country
 
-    let inline withLimit limit = withOptional (fun (o: 'a when 'a :> HasLimit) -> o.limit) limit
+    let withLimit limit = withOptional(fun (o: #HasLimit) -> o.limit) limit
 
-    let inline withOffset offset = withOptional (fun (o: 'a when 'a :> HasOffset) -> o.offset) offset
+    let withOffset offset = withOptional (fun (o: #HasOffset) -> o.offset) offset
+
+    let withAlbumTypes albumTypes = withOptional (fun (o: #HasAlbumTypes) -> o.albumTypes) albumTypes
 
     let inline withAlbumTypes albumTypes = withOptional (fun (o: 'a when 'a :> HasAlbumTypes) -> o.albumTypes) albumTypes
