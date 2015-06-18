@@ -17,6 +17,10 @@ module Optionals =
 
     let offsetBuilder (offset: int) = builder "offset" (string offset)
 
+    let localeBuilder (Locale locale) = builder "locale" locale
+
+    let timestampBuilder (datetime: System.DateTime) = builder "timestamp" (datetime.ToString("yyyy-MM-ddTHH:mm:ss"))
+
     let albumTypesBuilder (albumTypes: AlbumType list) = builder "album_type" (albumTypes |> List.map AlbumType.asString |> Misc.buildCommaList)
 
     type HasMarket = abstract member market: Market Optional
@@ -24,6 +28,8 @@ module Optionals =
     type HasLimit = abstract member limit: int Optional
     type HasOffset = abstract member offset: int Optional
     type HasAlbumTypes = abstract member albumTypes: AlbumType list Optional
+    type HasLocale = abstract member locale: Locale Optional
+    type HasTimestamp = abstract member timestamp: System.DateTime Optional
 
     type MarketOption () =
         interface HasMarket with member this.market = marketBuilder
@@ -40,6 +46,12 @@ module Optionals =
         inherit MarketOption ()
         interface HasLimit with member this.limit = limitBuilder
         interface HasOffset with member this.offset = offsetBuilder
+        interface HasCountry with member this.country = countryBuilder
+
+    type LocaleTimestampCountryOffsetAndLimitOption () =
+        inherit CountryOffsetAndLimitOption ()
+        interface HasLocale with member this.locale = localeBuilder
+        interface HasTimestamp with member this.timestamp = timestampBuilder
 
     type MarketOffsetLimitAndAlbumTypesOption () =
         inherit MarketOffsetAndLimitOption ()
@@ -58,4 +70,6 @@ module Optionals =
 
     let withAlbumTypes albumTypes = withOptional (fun (o: #HasAlbumTypes) -> o.albumTypes) albumTypes
 
-    let inline withAlbumTypes albumTypes = withOptional (fun (o: 'a when 'a :> HasAlbumTypes) -> o.albumTypes) albumTypes
+    let withLocale locale = withOptional (fun (o: #HasLocale) -> o.locale) locale
+
+    let withTimestamp timestamp = withOptional (fun (o: #HasTimestamp) -> o.timestamp) timestamp

@@ -12,3 +12,9 @@ module Browse =
         |> Request.unwrap "albums"
         |> Request.parse<SimpleAlbum Paging,_>
 
+    let featuredPlaylists =
+        request
+        |> Request.withUrlPath "featured-playlists"
+        |> Request.addOptionals (Optionals.LocaleTimestampCountryOffsetAndLimitOption())
+        |> Request.unwrap "playlists"
+        |> Request.parse<SimplePlaylist Paging,_>

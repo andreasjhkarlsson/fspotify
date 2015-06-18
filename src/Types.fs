@@ -24,6 +24,8 @@ type Market = Market of string
 
 type Country = Country of string
 
+type Locale = Locale of string
+
 type CopyrightType = C | P
 
 type Copyright = {text: string; ``type``: CopyrightType}
@@ -85,8 +87,16 @@ type SimpleAlbum = {
     uri: SpotifyUri
 }
 
-
-type PublicUser = PublicUser
+type PublicUser = {
+    display_name: string
+    external_urls: UrlMap
+    followers: Followers
+    href: Url
+    id: SpotifyId
+    images: Image list
+    ``type``: string
+    uri: SpotifyUri
+}
 
 type SimpleTrack = {
     artists: SimpleArtist list

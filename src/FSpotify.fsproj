@@ -60,8 +60,8 @@
     <Compile Include="Album.fs" />
     <Compile Include="Track.fs" />
     <Compile Include="Artist.fs" />
-    <Compile Include="Browse.fs" />
     <Compile Include="Playlist.fs" />
+    <Compile Include="Browse.fs" />
     <Content Include="packages.config" />
     <Content Include="app.config" />
   </ItemGroup>
