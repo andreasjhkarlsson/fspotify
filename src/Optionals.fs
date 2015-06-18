@@ -37,6 +37,10 @@ module Optionals =
     type CountryOption () =
         interface HasCountry with member this.country = countryBuilder
 
+    type CountryAndLocaleOption () =
+        inherit CountryOption ()
+        interface HasLocale with member this.locale = localeBuilder
+
     type MarketOffsetAndLimitOption () =
         inherit MarketOption ()
         interface HasLimit with member this.limit = limitBuilder
@@ -48,9 +52,12 @@ module Optionals =
         interface HasOffset with member this.offset = offsetBuilder
         interface HasCountry with member this.country = countryBuilder
 
-    type LocaleTimestampCountryOffsetAndLimitOption () =
+    type LocaleCountryOffsetAndLimitOption () =
         inherit CountryOffsetAndLimitOption ()
         interface HasLocale with member this.locale = localeBuilder
+
+    type TimestampLocaleCountryOffsetAndLimitOption () =
+        inherit LocaleCountryOffsetAndLimitOption ()
         interface HasTimestamp with member this.timestamp = timestampBuilder
 
     type MarketOffsetLimitAndAlbumTypesOption () =

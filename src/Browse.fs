@@ -15,6 +15,27 @@ module Browse =
     let featuredPlaylists =
         request
         |> Request.withUrlPath "featured-playlists"
-        |> Request.addOptionals (Optionals.LocaleTimestampCountryOffsetAndLimitOption())
+        |> Request.addOptionals (Optionals.TimestampLocaleCountryOffsetAndLimitOption())
+        |> Request.unwrap "playlists"
+        |> Request.parse<SimplePlaylist Paging,_>
+
+    let categories =
+        request
+        |> Request.withUrlPath "categories"
+        |> Request.addOptionals (Optionals.LocaleCountryOffsetAndLimitOption())
+        |> Request.unwrap "categories"
+        |> Request.parse<Category Paging,_>
+
+    let category (SpotifyId id) =
+        request
+        |> Request.withUrlPath "categories"
+        |> Request.withUrlPath id
+        |> Request.addOptionals (Optionals.CountryAndLocaleOption())
+        |> Request.parse<Category,_>
+
+    let categoryPlaylists (SpotifyId id) =
+        request
+        |> Request.withUrlPath (sprintf "categories/%s/playlists" id)
+        |> Request.addOptionals (Optionals.CountryOffsetAndLimitOption())
         |> Request.unwrap "playlists"
         |> Request.parse<SimplePlaylist Paging,_>
