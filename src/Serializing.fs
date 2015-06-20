@@ -18,3 +18,5 @@ module Serializing =
     let deserialize<'a> json = JsonConvert.DeserializeObject<'a>(value = json, converters = converters)
 
     let unwrap element json = JObject.Parse(json).[element].ToString()
+
+    let hasElement element json = JObject.Parse(json).[element] <> null
