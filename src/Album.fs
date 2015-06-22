@@ -59,5 +59,7 @@ module Album =
         |> Request.withUrlPath "tracks"
         |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption())
         |> Request.parse<SimpleTrack Paging,_>
+
+    let ofSimple (simple: SimpleAlbum) = album simple.id
     
 
