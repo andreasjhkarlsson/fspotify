@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Predefined.fs" />
     <Compile Include="ArtistSummary.fs" />
+    <Compile Include="UserAuthorization.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>

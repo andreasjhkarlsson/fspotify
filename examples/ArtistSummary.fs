@@ -2,7 +2,7 @@
 
 open FSpotify
 
-let Example artistId =
+let print artistId =
 
     let artist = Artist.artist artistId |> Request.send
 
