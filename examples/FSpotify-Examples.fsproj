@@ -54,11 +54,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\JsonNet.FSharp\src\JsonNet.FSharp\JsonNet.FSharp.fsproj">
-      <Name>JsonNet.FSharp</Name>
-      <Project>{bc6f1810-4d59-4216-8118-74a012643e4a}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\src\FSpotify.fsproj">
       <Name>FSpotify</Name>
       <Project>{a45308db-8c00-4d8d-b94c-c657028cae48}</Project>
