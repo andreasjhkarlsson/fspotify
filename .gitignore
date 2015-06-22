@@ -3,3 +3,7 @@ src/bin/*
 src/obj/*
 test/bin/*
 test/obj/*
+examples/bin/*
+examples/obj/*
+.nuget/*
+packages/*
