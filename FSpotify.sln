@@ -13,11 +13,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSpotify-Examples", "exampl
 		{A45308DB-8C00-4D8D-B94C-C657028CAE48} = {A45308DB-8C00-4D8D-B94C-C657028CAE48}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{02918768-BFA4-483B-B8BE-3C4D53B94C54}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSpotify-Test", "test\FSpotify-Test.fsproj", "{4226668B-E355-4CE5-9587-6121A2B3C25D}"
 EndProject
 Global
