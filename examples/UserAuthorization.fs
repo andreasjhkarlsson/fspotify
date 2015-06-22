@@ -31,9 +31,14 @@ let authorize clientId clientSecret permissions =
 
     // Respond to callback
     use writer = new StreamWriter(response.OutputStream)
-    writer.Write("Auth OK")
+    writer.Write("OK")
     writer.Close();
-      
+
+    // User denied (or some other error).
+    if incoming.QueryString.Get("error") <> null then failwith "Did not get user authorization"
+    
+    if state <> incoming.QueryString.Get("state") then failwith "Authorization state did not match! Possible CSRF detected!"
+
     // Extract auth code!
     let code = (incoming.QueryString.Get("code"))
 
