@@ -1,7 +1,6 @@
 ﻿namespace FSpotify
 
-
-
+open System
 
 type SubscriptionLevel = |Premium |Free |Open
 
@@ -11,12 +10,12 @@ type PrivateUser = {
     display_name: string
     email: string option
     followers: Followers
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     product: SubscriptionLevel option
     ``type``: string
-    uri: Url
+    uri: Uri
 }
 
 module User =

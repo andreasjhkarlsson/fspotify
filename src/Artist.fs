@@ -1,5 +1,6 @@
 ﻿namespace FSpotify
 
+open System
 open Misc
 
 
@@ -7,13 +8,13 @@ type Artist = {
     external_urls: UrlMap
     followers: Followers
     genres: Genre list
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     name: string
     popularity: int
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

@@ -1,18 +1,19 @@
 ﻿namespace FSpotify
 
+open System
 open Request
 
 type Paging<'a> = {
     items: 'a list
-    href: Url
+    href: Uri
     limit: int
-    next: Url option
+    next: Uri option
     offset: int
-    previous: Url option
+    previous: Uri option
     total: int
 } with static member Empty<'a> () = {
         items = List.empty<'a>
-        href = Url ""
+        href = Uri ""
         limit = 0
         next = None
         offset = 0
@@ -28,8 +29,8 @@ module Paging =
     let stateOf request paging =
         {
             data = paging
-            next = paging.next |> Option.map (fun (Url url) ->
-                    request |> Request.withUrl url
+            next = paging.next |> Option.map (fun uri ->
+                    request |> Request.withUrl uri
                 )
         }
 

@@ -42,7 +42,7 @@ module Authorization =
             |> Encoding.UTF8.GetBytes
             |> Convert.ToBase64String
 
-        Request.create Request.Post "https://accounts.spotify.com/api/token"
+        Request.create Request.Post (Uri "https://accounts.spotify.com/api/token")
         |> Request.withHeader ("Authorization",sprintf "Basic %s" encoded)
         |> Request.withBody "grant_type=client_credentials"
         |> Request.parse<Token,_>

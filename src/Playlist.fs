@@ -1,11 +1,13 @@
 ﻿namespace FSpotify
 
+open System
+
 type Playlist = {
     collaborative: bool
     description: string
     external_urls: UrlMap
     followers: Followers
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     name: string
@@ -14,7 +16,7 @@ type Playlist = {
     snapshot_id: string
     tracks: SimpleTrack Paging
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 

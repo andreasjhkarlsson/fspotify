@@ -1,5 +1,6 @@
 ﻿namespace FSpotify
 
+open System
 open Misc
 
 type Album = {
@@ -10,7 +11,7 @@ type Album = {
     external_ids: ExternalIdMap
     external_urls: UrlMap
     genres: Genre list
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     name: string
@@ -19,7 +20,7 @@ type Album = {
     release_date_precision: DatePrecision
     tracks: SimpleTrack Paging
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 

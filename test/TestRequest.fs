@@ -1,5 +1,6 @@
 ﻿module TestRequest
 
+open System
 open FSpotify
 open Xunit
 open FsUnit
@@ -12,6 +13,6 @@ let ``with endpoint`` () =
 [<Fact>]
 let ``with url map`` () =
     let request =
-        Request.create Request.Get "http://foo/"
-        |> Request.mapUrl (fun url -> url + "bar")
+        Request.create Request.Get (Uri "http://foo/")
+        |> Request.mapPath (fun url -> url + "bar")
     request.path |> should equal "http://foo/bar"

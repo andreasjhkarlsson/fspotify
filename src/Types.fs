@@ -1,5 +1,7 @@
 ﻿namespace FSpotify
 
+open System
+
 type ErrorObject = {status: string; message: string}
 
 type Token = {access_token: string; token_type: string; expires_in: int; refresh_token: string option}
@@ -39,63 +41,59 @@ type ExternalIdMap = Map<string,ExternalId>
 
 type UrlType = Spotify
 
-type Url = Url of string
-
 // Todo: use UrlType instead of string (needs json type converter)
-type UrlMap = Map<string,Url>
+type UrlMap = Map<string,Uri>
 
 type Genre = Genre of string
 
 type Image = {
-    url: Url
+    url: Uri
     height: int option
     width: int option
 }
 
 type DatePrecision = Year | Month | Day
 
-type SpotifyUri = SpotifyUri of string
-
 type Followers = {
-    href: Url option
+    href: Uri option
     total: int
 }
 
 type Tracks = {
-    href: Url
+    href: Uri
     total: int
 }
 
 type SimpleArtist = {
     external_urls: UrlMap
-    href: Url
+    href: Uri
     id: SpotifyId
     name: string
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 type SimpleAlbum = {
     album_type: AlbumType
     available_markets: Market list
     external_urls: UrlMap
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     name: string
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 type PublicUser = {
     display_name: string
     external_urls: UrlMap
     followers: Followers
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 type SimpleTrack = {
@@ -105,21 +103,21 @@ type SimpleTrack = {
     duration_ms: int
     explicit: bool
     external_urls: UrlMap
-    href: Url
+    href: Uri
     id: SpotifyId
     is_playable: bool
     linked_from: unit
     name: string
-    preview_url: Url
+    preview_url: Uri
     track_number: int
     ``type``: string
-    uri: SpotifyUri 
+    uri: Uri 
 }
 
 type SimplePlaylist = {
     collaborative: bool
     external_urls: UrlMap
-    href: Url
+    href: Uri
     id: SpotifyId
     images: Image list
     name: string
@@ -128,11 +126,11 @@ type SimplePlaylist = {
     snapshot_id: string
     tracks: Tracks
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 type Category = {
-    href: Url
+    href: Uri
     icons: Image list
     id: SpotifyId
     name: string

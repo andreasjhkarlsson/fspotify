@@ -1,5 +1,6 @@
 ﻿namespace FSpotify
 
+open System
 open Optionals
 
 type Track = {
@@ -11,16 +12,16 @@ type Track = {
     explicit: bool
     external_ids: ExternalIdMap
     external_urls: UrlMap
-    href: Url
+    href: Uri
     id: SpotifyId
     is_playable: bool
     linked_from: unit
     name: string
     popularity: int
-    preview_url: Url
+    preview_url: Uri
     track_number: int
     ``type``: string
-    uri: SpotifyUri
+    uri: Uri
 }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

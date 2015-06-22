@@ -25,12 +25,11 @@ module Request =
         optionals: 'b
     }
 
-    let withUrl url (request: Request<'a,'b>) =
-        let uri = new Uri(url)
-        let path = uri.GetLeftPart(UriPartial.Path)
+    let withUrl (url: Uri) (request: Request<'a,'b>) =
+        let path = url.GetLeftPart(UriPartial.Path)
         let queryArgs =
-            if uri.Query.StartsWith "?" then
-                uri.Query.Substring(1).Split('&')
+            if url.Query.StartsWith "?" then
+                url.Query.Substring(1).Split('&')
                 |> Array.map (fun str -> str.Split('='))
                 |> Array.map (Array.map Uri.UnescapeDataString)
                 |> Array.map (fun keyValue -> keyValue.[0],keyValue.[1])
@@ -83,7 +82,7 @@ module Request =
 
     let parse<'a,'b> = mapResponse<string,'b,'a> Serializing.deserialize<'a>
 
-    let mapUrl fn request = {request with path = fn request.path}
+    let mapPath fn request = {request with path = fn request.path}
 
     let withUrlPath path (request: Request<'a,'b>) = {request with path = sprintf "%s/%s" request.path path}
 
@@ -178,6 +177,6 @@ module Request =
         }
         |> withUrl url
 
-    let createFromEndpoint verb endpoint = create verb "https://api.spotify.com/v1" |> withUrlPath endpoint
+    let createFromEndpoint verb endpoint = create verb (Uri "https://api.spotify.com/v1") |> withUrlPath endpoint
 
 
