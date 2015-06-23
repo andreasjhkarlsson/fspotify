@@ -43,20 +43,22 @@ module Authorization =
             |> Convert.ToBase64String
 
         Request.create Request.Post (Uri "https://accounts.spotify.com/api/token")
-        |> Request.withHeader ("Authorization",sprintf "Basic %s" encoded)
-        |> Request.withBody "grant_type=client_credentials"
+        |> Request.withHeader (Request.Custom "Authorization",sprintf "Basic %s" encoded)
+        |> Request.withFormBody ["grant_type","client_credentials"]
         |> Request.parse<Token,_>
 
     let authorizeCode id secret code (redirectUri: Uri) =
         let baseRequest = clientCredentials id secret
         baseRequest
-        |> Request.withBody (sprintf "grant_type=authorization_code&code=%s&redirect_uri=%s" code redirectUri.AbsoluteUri)
+        |> Request.withFormBody ["grant_type","authorization_code"
+                                 "code", code
+                                 "redirect_uri",redirectUri.AbsoluteUri]
 
     let refresh id secret (token: Token) =
         token.refresh_token |> Option.map(fun refresh_token ->
             let baseRequest = clientCredentials id secret
             baseRequest
-            |> Request.withBody (sprintf "grant_type=refresh_token&code=%s" refresh_token)   
+            |> Request.withFormBody ["grant_type","refresh_token";"code",refresh_token]
         )
 
 

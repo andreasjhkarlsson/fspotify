@@ -13,13 +13,17 @@ module Request =
 
     type HttpVerb = |Get |Post
 
+    type HttpHeader =
+    | ContentType
+    | Custom of string
+
     type ResponseBuilder<'a> = string -> 'a
 
     type Request<'a,'b> = {
         verb: HttpVerb
         path: string
         queryParameters: Map<string,string>
-        headers: Map<string,string>
+        headers: Map<HttpHeader,string>
         body: string
         responseMapper: ResponseBuilder<'a>
         optionals: 'b
@@ -90,10 +94,21 @@ module Request =
 
     let withBody body request = {request with body = body}
 
+
     let withHeader (name,value) request = {request with headers = request.headers |> Map.add name value}
 
+    let withFormBody args = 
+        let args =
+            args  
+            |> List.map (fun (key,value) ->
+                sprintf "%s=%s" (Uri.EscapeDataString(key)) (Uri.EscapeDataString(value))
+            )
+            |> String.concat "&"
+        
+        withHeader (ContentType, "application/x-www-form-urlencoded") >> withBody args
+
     let withAuthorization {access_token = token; token_type = token_type} =
-        withHeader ("Authorization",sprintf "%s %s" token_type token)
+        withHeader (Custom "Authorization",sprintf "%s %s" token_type token)
 
     let send ({ path = path
                 queryParameters = queryParameters
@@ -121,11 +136,15 @@ module Request =
 
             headers
             |> Map.toList
-            |> List.iter httpRequest.Headers.Add
+            |> List.iter (fun (name,value) ->
+                match name with
+                | ContentType ->
+                    httpRequest.ContentType <- value
+                | Custom name ->
+                    httpRequest.Headers.Add(name,value)
+            )
 
-            if verb <> Get then
-                httpRequest.ContentType <- "application/x-www-form-urlencoded"
-
+            if body <> "" then
                 use requestStream = httpRequest.GetRequestStream()
                 use requestWriter = new StreamWriter(requestStream)
                 requestWriter.Write(body)
