@@ -74,7 +74,7 @@ type SimpleArtist = {
 }
 
 type SimpleAlbum = {
-    album_type: AlbumType
+    album_type: AlbumType option
     available_markets: Market list
     external_urls: UrlMap
     href: Uri

@@ -4,7 +4,7 @@ open System
 open Misc
 
 type Album = {
-    album_type: AlbumType
+    album_type: AlbumType option
     artists: SimpleArtist list
     available_markets: Market list
     copyrights: Copyright list

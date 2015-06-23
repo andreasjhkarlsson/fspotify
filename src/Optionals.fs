@@ -41,10 +41,13 @@ module Optionals =
         inherit CountryOption ()
         interface HasLocale with member this.locale = localeBuilder
 
-    type MarketOffsetAndLimitOption () =
-        inherit MarketOption ()
+    type LimitAndOffsetOption () =
         interface HasLimit with member this.limit = limitBuilder
         interface HasOffset with member this.offset = offsetBuilder
+
+    type MarketOffsetAndLimitOption () =
+        inherit LimitAndOffsetOption ()
+        interface HasMarket with member this.market = marketBuilder
 
     type CountryOffsetAndLimitOption () =
         inherit MarketOption ()

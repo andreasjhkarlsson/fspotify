@@ -20,11 +20,13 @@ type PrivateUser = {
 
 module User =
     
+    let request = Request.createFromEndpoint Request.Get "users"
+
     let me = 
         Request.createFromEndpoint Request.Get "me"
         |> Request.parse<PrivateUser,_>
 
     let user (SpotifyId id) =
-        Request.createFromEndpoint Request.Get "users"
+        request
         |> Request.withUrlPath id
         |> Request.parse<PublicUser,_>
