@@ -14,7 +14,7 @@ type Artist = {
     name: string
     popularity: int
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

@@ -10,6 +10,33 @@ type SpotifyId =
     |SpotifyId of string
     static member asString (SpotifyId id) = id
 
+type SpotifyUri = Uri
+
+[<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
+module SpotifyUri =
+
+    type Type = Track | Artist | Album |User
+
+    let create ``type`` (SpotifyId id) =
+        let str =
+            sprintf "spotify:%s:%s" (
+                match ``type`` with
+                | Track -> "track"
+                | Artist -> "artist"
+                | Album -> "album"
+                | User -> "user"
+                ) id 
+        Uri(str) 
+
+    let track = create Track
+    let artist = create Artist
+    let album = create Album
+    let user = create User
+
+
+
+    let asString (uri: Uri) = uri.AbsoluteUri
+
 type AlbumType =
     |Album
     |Single
@@ -70,8 +97,8 @@ type SimpleArtist = {
     id: SpotifyId
     name: string
     ``type``: string
-    uri: Uri
-}
+    uri: SpotifyUri
+} 
 
 type SimpleAlbum = {
     album_type: AlbumType option
@@ -82,7 +109,7 @@ type SimpleAlbum = {
     images: Image list
     name: string
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 type PublicUser = {
@@ -93,7 +120,7 @@ type PublicUser = {
     id: SpotifyId
     images: Image list
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 type SimpleTrack = {
@@ -111,7 +138,7 @@ type SimpleTrack = {
     preview_url: Uri
     track_number: int
     ``type``: string
-    uri: Uri 
+    uri: SpotifyUri 
 }
 
 type SimplePlaylist = {
@@ -126,7 +153,7 @@ type SimplePlaylist = {
     snapshot_id: string
     tracks: Tracks
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 type Category = {

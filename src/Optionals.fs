@@ -23,6 +23,8 @@ module Optionals =
 
     let albumTypesBuilder (albumTypes: AlbumType list) = builder "album_type" (albumTypes |> List.map AlbumType.asString |> Misc.buildCommaList)
 
+    let positionBuilder (position: int) = string position |> builder "position" 
+
     type HasMarket = abstract member market: Market Optional
     type HasCountry = abstract member country: Country Optional
     type HasLimit = abstract member limit: int Optional
@@ -30,12 +32,16 @@ module Optionals =
     type HasAlbumTypes = abstract member albumTypes: AlbumType list Optional
     type HasLocale = abstract member locale: Locale Optional
     type HasTimestamp = abstract member timestamp: System.DateTime Optional
+    type HasPosition = abstract member position: int Optional
 
     type MarketOption () =
         interface HasMarket with member this.market = marketBuilder
 
     type CountryOption () =
         interface HasCountry with member this.country = countryBuilder
+
+    type PositionOption () =
+        interface HasPosition with member this.position = positionBuilder
 
     type CountryAndLocaleOption () =
         inherit CountryOption ()
@@ -67,7 +73,6 @@ module Optionals =
         inherit MarketOffsetAndLimitOption ()
         interface HasAlbumTypes with member this.albumTypes = albumTypesBuilder
 
-
     let inline withOptional<'a,'b,'c> fn (arg: 'c) (request: Request.Request<'a,'b>) = request |> Request.withOptionals (fun (inner) -> Request.build ((fn inner) arg))
 
     let withMarket market = withOptional (fun (o: #HasMarket) -> o.market) market
@@ -83,3 +88,5 @@ module Optionals =
     let withLocale locale = withOptional (fun (o: #HasLocale) -> o.locale) locale
 
     let withTimestamp timestamp = withOptional (fun (o: #HasTimestamp) -> o.timestamp) timestamp
+
+    let withPosition position = withOptional (fun (o: #HasPosition) -> o.position) position

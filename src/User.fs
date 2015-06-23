@@ -15,7 +15,7 @@ type PrivateUser = {
     images: Image list
     product: SubscriptionLevel option
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 module User =

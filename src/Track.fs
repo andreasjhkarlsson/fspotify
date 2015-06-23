@@ -21,7 +21,7 @@ type Track = {
     preview_url: Uri
     track_number: int
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

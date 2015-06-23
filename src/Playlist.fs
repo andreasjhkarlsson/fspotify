@@ -23,7 +23,7 @@ type Playlist = {
     snapshot_id: string
     tracks: PlaylistTrack Paging
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 
@@ -37,7 +37,8 @@ module Playlist =
 
     let playlistRequest userId (SpotifyId playlistId) =
         playlistsRequest userId |> Request.withUrlPath playlistId
-        
+    
+    let playlistTracksRequest userId = playlistRequest userId >> Request.withUrlPath "tracks"
 
     let playlists userId =
         playlistsRequest userId
@@ -50,8 +51,7 @@ module Playlist =
         |> Request.parse<Playlist,_>
 
     let tracks userId playlistId =
-        playlistRequest userId playlistId
-        |> Request.withUrlPath "tracks"
+        playlistTracksRequest userId playlistId
         |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption()) // Todo: support fields optional(?)
         |> Request.parse<PlaylistTrack Paging,_>
 
@@ -62,3 +62,16 @@ module Playlist =
         |> Request.withVerb Request.Post // Change to POST request
         |> Request.withJsonBody {name = name; ``public`` = ``public``}
         |> Request.parse<Playlist,_>
+
+    let add userId playlistId (tracks: SpotifyId list)  =
+        let uris =
+            tracks
+            |> List.map (SpotifyUri.track >> SpotifyUri.asString)
+            |> Misc.buildCommaList
+
+        playlistTracksRequest userId playlistId
+        |> Request.withVerb Request.Post
+        |> Request.withQueryParameter ("uris",uris)
+        |> Request.addOptionals (Optionals.PositionOption())
+        |> Request.unwrap "snapshot_id"
+        |> Request.mapResponse SpotifyId

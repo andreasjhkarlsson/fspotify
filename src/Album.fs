@@ -20,7 +20,7 @@ type Album = {
     release_date_precision: DatePrecision
     tracks: SimpleTrack Paging
     ``type``: string
-    uri: Uri
+    uri: SpotifyUri
 }
 
 
