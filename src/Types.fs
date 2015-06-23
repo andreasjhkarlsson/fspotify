@@ -10,7 +10,7 @@ type SpotifyId =
     |SpotifyId of string
     static member asString (SpotifyId id) = id
 
-type SpotifyUri = Uri
+type SpotifyUri = SpotifyUri of Uri
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module SpotifyUri =
@@ -26,16 +26,20 @@ module SpotifyUri =
                 | Album -> "album"
                 | User -> "user"
                 ) id 
-        Uri(str) 
+        Uri(str) |> SpotifyUri
 
     let track = create Track
     let artist = create Artist
     let album = create Album
     let user = create User
 
-
-
-    let asString (uri: Uri) = uri.AbsoluteUri
+    let asString (SpotifyUri uri) = uri.AbsoluteUri
+    let ofString str = Uri str |> SpotifyUri
+    let uri (SpotifyUri uri) = uri
+    
+    let id (SpotifyUri uri) =
+        // No method on System.Uri to do this unfortunately.
+        (uri.AbsoluteUri.Split([|':'|]) |> Array.rev).[0] |> SpotifyId
 
 type AlbumType =
     |Album

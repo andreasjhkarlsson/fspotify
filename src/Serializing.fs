@@ -50,7 +50,8 @@ module Serializing =
             serializer.Serialize(writer, value)
 
         override this.ReadJson(reader, t, existingValue, serializer) =
-            let value = serializer.Deserialize(reader)
+            // Todo: Allow more than one field.
+            let value = serializer.Deserialize(reader,FSharpType.GetUnionCases(t).[0].GetFields().[0].PropertyType)
             if value <> null then FSharpValue.MakeUnion(FSharpType.GetUnionCases(t).[0],[|value|]) else null
 
     let settings =
