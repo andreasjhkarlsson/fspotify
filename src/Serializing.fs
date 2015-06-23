@@ -26,12 +26,13 @@ module Serializing =
         override this.ReadJson(reader, t, existingValue, serializer) =
             let value = serializer.Deserialize(reader,typeof<string>) :?> string
 
-            let case = FSharpType.GetUnionCases(t) |> Array.pick (fun case ->
+            let case = FSharpType.GetUnionCases(t) |> Array.tryPick (fun case ->
                 // Note: Case insensitive match!
-                if case.Name.ToUpper() = value.ToUpper() then Some case else None
+                if value <> null && case.Name.ToUpper() = value.ToUpper() then Some case else None
             )
-
-            FSharpValue.MakeUnion(case,[||])
+            match case with
+            | Some case -> FSharpValue.MakeUnion(case,[||])
+            | None -> null
 
     // Convert single case unions like "type Email = Email of string" to/from json. 
     type SingleCaseUnionConverter () =
