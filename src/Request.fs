@@ -44,9 +44,9 @@ module Request =
                 request.queryParameters
 
         {request with path = path; queryParameters = queryArgs}
+
+    let withVerb verb request ={request with verb = verb}
         
-
-
     // This is a magical little function. It applies a "builder" object to a request, transforming it.
     // Use statically resolved type parameters since the generic type(s) of the builder cannot be known.
     let inline build (builder: ^a when ^a: (member Apply: Request<'b,'c> -> Request<'b,'c>)) (request: Request<'b,'c>) =
@@ -94,7 +94,6 @@ module Request =
 
     let withBody body request = {request with body = body}
 
-
     let withHeader (name,value) request = {request with headers = request.headers |> Map.add name value}
 
     let withFormBody args = 
@@ -106,6 +105,9 @@ module Request =
             |> String.concat "&"
         
         withHeader (ContentType, "application/x-www-form-urlencoded") >> withBody args
+
+    let withJsonBody data =
+        withHeader (ContentType, "application/json") >> withBody (Serializing.serialize data)
 
     let withAuthorization {access_token = token; token_type = token_type} =
         withHeader (Custom "Authorization",sprintf "%s %s" token_type token)

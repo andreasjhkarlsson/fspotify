@@ -54,3 +54,11 @@ module Playlist =
         |> Request.withUrlPath "tracks"
         |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption()) // Todo: support fields optional(?)
         |> Request.parse<PlaylistTrack Paging,_>
+
+    type createPostArgs = {name: string; ``public``: bool}
+
+    let create userId name ``public`` =
+        playlistsRequest userId
+        |> Request.withVerb Request.Post // Change to POST request
+        |> Request.withJsonBody {name = name; ``public`` = ``public``}
+        |> Request.parse<Playlist,_>
