@@ -49,8 +49,8 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="Serializing.fs" />
     <Compile Include="Types.fs" />
+    <Compile Include="Serializing.fs" />
     <Compile Include="Misc.fs" />
     <Compile Include="Request.fs" />
     <Compile Include="Authorization.fs" />

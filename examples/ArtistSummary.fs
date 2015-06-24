@@ -19,7 +19,7 @@ let print artistId =
 
     let latestRelease = albums |> Seq.maxBy (fun album -> album.release_date)
 
-    printfn "Latest release: %s (%s)" latestRelease.name latestRelease.release_date
+    printfn "Latest release: %s (%i)" latestRelease.name (ImpreciseDate.Year latestRelease.release_date)
 
     let related =
         Artist.related artistId

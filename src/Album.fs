@@ -16,7 +16,7 @@ type Album = {
     images: Image list
     name: string
     popularity: int
-    release_date: string
+    release_date: ImpreciseDate
     release_date_precision: DatePrecision
     tracks: SimpleTrack Paging
     ``type``: string

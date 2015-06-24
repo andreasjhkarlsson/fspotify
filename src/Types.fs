@@ -83,6 +83,13 @@ type Image = {
     width: int option
 }
 
+type ImpreciseDate =
+    |ImpreciseDate of DateTime
+    static member DateTime (ImpreciseDate x) = x
+    static member Year (ImpreciseDate x) = x.Year
+    static member Month (ImpreciseDate x) = x.Month
+    static member Day (ImpreciseDate x) = x.Day
+
 type DatePrecision = Year | Month | Day
 
 type Followers = {

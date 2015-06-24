@@ -1,5 +1,6 @@
 ﻿namespace FSpotify
 
+open System
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open Newtonsoft.Json.FSharp
@@ -54,11 +55,36 @@ module Serializing =
             let value = serializer.Deserialize(reader,FSharpType.GetUnionCases(t).[0].GetFields().[0].PropertyType)
             if value <> null then FSharpValue.MakeUnion(FSharpType.GetUnionCases(t).[0],[|value|]) else null
 
+    type ImpreciseDateConverter () =
+        inherit JsonConverter ()
+
+        override this.CanConvert(t) =
+            t = typeof<ImpreciseDate>
+
+        override this.WriteJson(_,_,_) = failwith "Serialization not supported"
+
+        override this.ReadJson(reader,t,existingValue,serializer) = 
+            let tryParse str format =
+                try
+                    DateTime.ParseExact(str,format,Globalization.CultureInfo.InvariantCulture) |> Some
+                with
+                | :? FormatException ->
+                    None
+            let value = serializer.Deserialize(reader,typeof<string>) :?> string
+
+            ["yyyy-MM-dd";"yyyy-MM";"yyyy"] |> List.pick (tryParse value) |> ImpreciseDate |> box
+
+
+
+
     let settings =
         let settings = JsonSerializerSettings()
+        settings.Converters.Add(ImpreciseDateConverter())
         settings.Converters.Add(UnionEnumConverter())
         settings.Converters.Add(SingleCaseUnionConverter())
+        settings.Converters.Add(Converters.IsoDateTimeConverter())
         Serialisation.extend (settings) 
+
 
     let serialize obj = JsonConvert.SerializeObject(obj, settings)
        
