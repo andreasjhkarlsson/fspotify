@@ -3,7 +3,7 @@
 open System
 
 type PlaylistTrack = {
-    added_at: string // Todo: Change to DateTime & handle null values (does not warrant an option type since only very old playlist may return null here)
+    added_at: DateTime // Todo: Handle null values (does not warrant an option type since only very old playlist may return null here)
     added_by: PublicUser
     is_local: bool
     track: Track
@@ -55,12 +55,12 @@ module Playlist =
         |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption()) // Todo: support fields optional(?)
         |> Request.parse<PlaylistTrack Paging,_>
 
-    type createPostArgs = {name: string; ``public``: bool}
+    type playlistInfoArgs = {name: string option; ``public``: bool option}
 
     let create userId name ``public`` =
         playlistsRequest userId
         |> Request.withVerb Request.Post // Change to POST request
-        |> Request.withJsonBody {name = name; ``public`` = ``public``}
+        |> Request.withJsonBody {name = Some name; ``public`` = Some ``public``}
         |> Request.parse<Playlist,_>
 
     let add userId playlistId (tracks: SpotifyId list)  =
@@ -75,3 +75,14 @@ module Playlist =
         |> Request.addOptionals (Optionals.PositionOption())
         |> Request.unwrap "snapshot_id"
         |> Request.mapResponse SpotifyId
+
+    let change userId playlistId (name: string option) (``public``: bool option) =
+        let args =
+            ["name", name |> Option.map box
+             "public", ``public`` |> Option.map box]
+            |> List.filter (snd >> Option.isSome)
+            |> Map.ofList
+        playlistRequest userId playlistId 
+        |> Request.withVerb Request.Put
+        |> Request.withJsonBody args
+        |> Request.mapResponse (fun _ -> ())

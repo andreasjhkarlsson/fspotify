@@ -11,7 +11,7 @@ exception SpotifyError of string*string
 
 module Request =
 
-    type HttpVerb = |Get |Post
+    type HttpVerb = Get | Post | Put
 
     type HttpHeader =
     | ContentType
@@ -135,6 +135,7 @@ module Request =
                 match verb with
                 | Get -> "GET"
                 | Post -> "POST"
+                | Put -> "PUT"
 
             headers
             |> Map.toList
