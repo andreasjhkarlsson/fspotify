@@ -11,7 +11,7 @@ exception SpotifyError of string*string
 
 module Request =
 
-    type HttpVerb = Get | Post | Put
+    type HttpVerb = Get | Post | Put | Delete
 
     type HttpHeader =
     | ContentType
@@ -136,6 +136,7 @@ module Request =
                 | Get -> "GET"
                 | Post -> "POST"
                 | Put -> "PUT"
+                | Delete -> "DELETE"
 
             headers
             |> Map.toList
@@ -163,7 +164,14 @@ module Request =
         | :? WebException as error ->
             let responseStream = error.Response.GetResponseStream()
             let errorBody = (new StreamReader(responseStream)).ReadToEnd()
-            let error = (Serializing.unwrap "error" errorBody) |> deserialize<ErrorObject>
+            let error =
+                if errorBody <> "" then
+                    (Serializing.unwrap "error" errorBody) |> deserialize<ErrorObject>
+                else
+                    {status = (error.Response :?> HttpWebResponse).StatusCode
+                                |> LanguagePrimitives.EnumToValue
+                                |> string
+                     message = error.Message}
             printfn "Debug: Spotify returned an error (%s: %s)" error.status error.message
             raise <| SpotifyError(error.status,error.message)
 

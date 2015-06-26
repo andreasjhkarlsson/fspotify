@@ -86,3 +86,34 @@ module Playlist =
         |> Request.withVerb Request.Put
         |> Request.withJsonBody args
         |> Request.mapResponse (fun _ -> ())
+
+    type RemovedTrack = {uri: SpotifyUri}
+    type RemovedTrackAtPositions = {uri: SpotifyUri; positions: int list}
+
+    let removeTracksWithSomePositions userId playlistId (tracksAndPositions: list<SpotifyId*(int list) option>) =
+        let args =
+            tracksAndPositions
+            |> List.fold (fun args (track,positions) ->
+                let trackUri = track |> SpotifyUri.track
+                match positions with
+                | Some positions ->
+                    (box {uri = trackUri; positions = positions}) :: args
+                | None ->
+                    (box {RemovedTrack.uri = trackUri}) :: args
+                ) List.empty
+            |> (fun tracks ->
+                [("tracks",tracks)] |> Map.ofList
+            )
+
+        playlistTracksRequest userId playlistId
+        |> Request.withVerb Request.Delete
+        |> Request.withJsonBody args
+        |> Request.unwrap "snapshot_id"
+        |> Request.mapResponse SpotifyId
+
+    let removeTracks userId playlistId =
+        List.map (fun track -> track, None) >> removeTracksWithSomePositions userId playlistId
+
+    let removeTracksWithPositions userId playlistId =
+        List.map (fun (id,positions) -> id, Some positions) >> removeTracksWithSomePositions userId playlistId
+        
