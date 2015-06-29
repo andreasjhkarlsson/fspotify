@@ -13,7 +13,7 @@ type Paging<'a> = {
     total: int
 } with static member Empty<'a> () = {
         items = List.empty<'a>
-        href = Uri ""
+        href = Uri "http://localhost"
         limit = 0
         next = None
         offset = 0
