@@ -129,3 +129,9 @@ module Playlist =
         |> Request.mapResponse SpotifyId
        
     let reorderTrack userId playlistId trackPosition insertPosition = reorderTracks userId playlistId trackPosition insertPosition 1
+
+    let replaceTracks userId playlistId tracks =
+        playlistTracksRequest userId playlistId
+        |> Request.withVerb Request.Put
+        |> Request.withJsonBody (["uris",tracks |> List.map SpotifyUri.track] |> Map.ofList)
+        |> Request.mapResponse (fun _  -> ())
