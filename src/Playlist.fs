@@ -116,4 +116,16 @@ module Playlist =
 
     let removeTracksWithPositions userId playlistId =
         List.map (fun (id,positions) -> id, Some positions) >> removeTracksWithSomePositions userId playlistId
-        
+
+    type reorderArguments = {range_start: int; insert_before: int; range_length: int}
+
+    let reorderTracks userId playlistId start insertBefore length =
+        playlistTracksRequest userId playlistId
+        |> Request.withVerb Request.Put
+        |> Request.withJsonBody {range_start = start
+                                 insert_before = insertBefore
+                                 range_length = length}
+        |> Request.unwrap "snapshot_id"
+        |> Request.mapResponse SpotifyId
+       
+    let reorderTrack userId playlistId trackPosition insertPosition = reorderTracks userId playlistId trackPosition insertPosition 1
