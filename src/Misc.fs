@@ -1,6 +1,7 @@
 ﻿namespace FSpotify
 
 open System
+open Microsoft.FSharp.Reflection
 
 module Misc =
     let buildCommaList = String.concat ","

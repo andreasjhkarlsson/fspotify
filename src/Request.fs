@@ -103,6 +103,14 @@ module Request =
     let withAuthorization {access_token = token; token_type = token_type} =
         withHeader (Custom "Authorization",sprintf "%s %s" token_type token)
 
+    let withEmptyResult<'a,'b> = mapResponse<'a,'b,unit> (fun _ -> ())
+
+    let withJsonField (name,value) ({body = body} as request) =
+        if body = "" then
+            withJsonBody ([name,value] |> Map.ofList) request
+        else
+            (deserialize<Map<IComparable,obj>> body |> Map.add name value |> withJsonBody) request
+
     [<AbstractClass>]
     type OptionalParameter<'a> () =
         inherit Attribute()

@@ -86,7 +86,7 @@ module Playlist =
         playlistRequest userId playlistId 
         |> Request.withVerb Request.Put
         |> Request.withJsonBody args
-        |> Request.mapResponse (fun _ -> ())
+        |> Request.withEmptyResult
 
     type RemovedTrack = {uri: SpotifyUri}
     type RemovedTrackAtPositions = {uri: SpotifyUri; positions: int list}
@@ -135,4 +135,4 @@ module Playlist =
         playlistTracksRequest userId playlistId
         |> Request.withVerb Request.Put
         |> Request.withJsonBody (["uris",tracks |> List.map SpotifyUri.track] |> Map.ofList)
-        |> Request.mapResponse (fun _  -> ())
+        |> Request.withEmptyResult
