@@ -1,92 +1,110 @@
 ﻿namespace FSpotify
 
+open System
 open System.Reflection
 open Microsoft.FSharp.Reflection
+open Request
 
 module Optionals =
-    
-    type Optional<'a> = 'a -> Request.QueryParameterBuilder
 
-    let builder name = fun data -> Request.QueryParameterBuilder(name,data)
+    type OptionalStringQueryParameter(name) = inherit OptionalQueryParameter<string>(name,string)
 
-    let marketBuilder (Market market) = builder "market" market
+    type OptionalIntQueryParameter(name) = inherit OptionalQueryParameter<int>(name,string)
 
-    let countryBuilder (Country country) = builder "country" country
+    type MarketParameter() = inherit OptionalStringQueryParameter("market")
 
-    let limitBuilder (limit: int) = builder "limit" (string limit)
+    type CountryParameter() = inherit OptionalStringQueryParameter("country")
 
-    let offsetBuilder (offset: int) = builder "offset" (string offset)
+    type LocaleParameter() = inherit OptionalStringQueryParameter("locale")
 
-    let localeBuilder (Locale locale) = builder "locale" locale
+    type PositionParameter() = inherit OptionalIntQueryParameter("position")
 
-    let timestampBuilder (datetime: System.DateTime) = builder "timestamp" (datetime.ToString("yyyy-MM-ddTHH:mm:ss"))
+    type LimitParameter() = inherit OptionalIntQueryParameter("limit")
 
-    let albumTypesBuilder (albumTypes: AlbumType list) = builder "album_type" (albumTypes |> List.map AlbumType.asString |> Misc.buildCommaList)
+    type OffsetParameter() = inherit OptionalIntQueryParameter("offset")
 
-    let positionBuilder (position: int) = string position |> builder "position" 
+    type TimestampParameter() = inherit OptionalStringQueryParameter("timestamp")
 
-    type HasMarket = abstract member market: Market Optional
-    type HasCountry = abstract member country: Country Optional
-    type HasLimit = abstract member limit: int Optional
-    type HasOffset = abstract member offset: int Optional
-    type HasAlbumTypes = abstract member albumTypes: AlbumType list Optional
-    type HasLocale = abstract member locale: Locale Optional
-    type HasTimestamp = abstract member timestamp: System.DateTime Optional
-    type HasPosition = abstract member position: int Optional
+    type AlbumTypesParameter() = inherit OptionalQueryParameter<AlbumType list>("album_type", Misc.buildCommaList << List.map AlbumType.asString)
 
-    type MarketOption () =
-        interface HasMarket with member this.market = marketBuilder
+    type MarketOption = {
+        [<MarketParameter()>]
+        market: Market option
+    } with static member Default = {market = None}
 
-    type CountryOption () =
-        interface HasCountry with member this.country = countryBuilder
+    type CountryOption = {
+        [<CountryParameter()>]
+        country: Country option
+    } with static member Default = {country = None}
 
-    type PositionOption () =
-        interface HasPosition with member this.position = positionBuilder
+    type CountryAndLocaleOption = {
+        [<CountryParameter()>]
+        country: Country option
+        [<LocaleParameter()>]
+        locale: Locale option
+    } with static member Default = {country = None; locale = None}
 
-    type CountryAndLocaleOption () =
-        inherit CountryOption ()
-        interface HasLocale with member this.locale = localeBuilder
+    type PositionOption = {
+        [<PositionParameter()>]
+        position: int option
+    } with static member Default = {position = None}
 
-    type LimitAndOffsetOption () =
-        interface HasLimit with member this.limit = limitBuilder
-        interface HasOffset with member this.offset = offsetBuilder
+    type LimitAndOffsetOption = {
+        [<LimitParameter()>]
+        limit: int option
+        [<OffsetParameter()>]
+        offset: int option        
+    } with static member Default = {limit = None; offset = None}
 
-    type MarketOffsetAndLimitOption () =
-        inherit LimitAndOffsetOption ()
-        interface HasMarket with member this.market = marketBuilder
+    type MarketLimitAndOffsetOption = {
+        [<LimitParameter()>]
+        limit: int option
+        [<OffsetParameter()>]
+        offset: int option        
+        [<MarketParameter()>]
+        market: Market option
+    } with static member Default = {market = None; offset = None; limit = None}
 
-    type CountryOffsetAndLimitOption () =
-        inherit MarketOption ()
-        interface HasLimit with member this.limit = limitBuilder
-        interface HasOffset with member this.offset = offsetBuilder
-        interface HasCountry with member this.country = countryBuilder
+    type CountryOffsetAndLimitOption = {
+        [<LimitParameter()>]
+        limit: int option
+        [<OffsetParameter()>]
+        offset: int option        
+        [<CountryParameter()>]
+        country: Country option
+    } with static member Default = {limit = None; offset = None; country = None}
 
-    type LocaleCountryOffsetAndLimitOption () =
-        inherit CountryOffsetAndLimitOption ()
-        interface HasLocale with member this.locale = localeBuilder
+    type LocaleCountryOffsetAndLimitOption = {
+        [<LimitParameter()>]
+        limit: int option
+        [<OffsetParameter()>]
+        offset: int option        
+        [<CountryParameter()>]
+        country: Country option
+        [<LocaleParameter()>]
+        locale: Locale option        
+    } with static member Default = {limit = None; offset = None; country = None; locale = None}
 
-    type TimestampLocaleCountryOffsetAndLimitOption () =
-        inherit LocaleCountryOffsetAndLimitOption ()
-        interface HasTimestamp with member this.timestamp = timestampBuilder
+    type TimestampLocaleCountryOffsetAndLimitOption = {
+        [<LimitParameter()>]
+        limit: int option
+        [<OffsetParameter()>]
+        offset: int option        
+        [<CountryParameter()>]
+        country: Country option
+        [<LocaleParameter()>]
+        locale: Locale option     
+        [<TimestampParameter()>]
+        timestamp: DateTime option   
+    } with static member Default = {limit = None; offset = None; country = None; locale = None; timestamp = None}
 
-    type MarketOffsetLimitAndAlbumTypesOption () =
-        inherit MarketOffsetAndLimitOption ()
-        interface HasAlbumTypes with member this.albumTypes = albumTypesBuilder
-
-    let inline withOptional<'a,'b,'c> fn (arg: 'c) (request: Request.Request<'a,'b>) = request |> Request.withOptionals (fun (inner) -> Request.build ((fn inner) arg))
-
-    let withMarket market = withOptional (fun (o: #HasMarket) -> o.market) market
-
-    let withCountry country = withOptional (fun (o: #HasCountry ) -> o.country) country
-
-    let withLimit limit = withOptional(fun (o: #HasLimit) -> o.limit) limit
-
-    let withOffset offset = withOptional (fun (o: #HasOffset) -> o.offset) offset
-
-    let withAlbumTypes albumTypes = withOptional (fun (o: #HasAlbumTypes) -> o.albumTypes) albumTypes
-
-    let withLocale locale = withOptional (fun (o: #HasLocale) -> o.locale) locale
-
-    let withTimestamp timestamp = withOptional (fun (o: #HasTimestamp) -> o.timestamp) timestamp
-
-    let withPosition position = withOptional (fun (o: #HasPosition) -> o.position) position
+    type MarketOffsetLimitAndAlbumTypesOption = {
+        [<LimitParameter()>]
+        limit: int option
+        [<OffsetParameter()>]
+        offset: int option        
+        [<MarketParameter()>]
+        market: Market option
+        [<AlbumTypesParameter()>]
+        albumTypes: (AlbumType list) option
+    } with static member Default = {limit = None; offset = None; market = None; albumTypes = None}

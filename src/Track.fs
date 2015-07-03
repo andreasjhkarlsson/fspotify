@@ -27,13 +27,12 @@ type Track = {
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Track =
     
-
     let trackRequest = Request.createFromEndpoint Request.Get "tracks"
 
     let track (SpotifyId id) =
         trackRequest
         |> Request.withUrlPath id
-        |> Request.addOptionals (MarketOption())
+        |> Request.withOptionals (fun _ -> MarketOption.Default)
         |> Request.parse<Track,_>
 
     let tracks ids =

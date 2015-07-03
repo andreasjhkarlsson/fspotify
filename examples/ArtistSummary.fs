@@ -12,7 +12,7 @@ let print artistId =
 
     let albums =
         Artist.albums artistId
-        |> Optionals.withAlbumTypes [AlbumType.Album]
+        |> Request.withOptionals (fun optionals -> {optionals with albumTypes = Some [AlbumType.Album]})
         |> Paging.page
         |> Paging.asSeq
         |> Seq.map (Album.ofSimple >> Request.send)

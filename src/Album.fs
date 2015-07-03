@@ -2,6 +2,7 @@
 
 open System
 open Misc
+open Optionals
 
 type Album = {
     album_type: AlbumType option
@@ -51,14 +52,14 @@ module Album =
         request
         |> Request.withQueryParameter ("ids",buildIdList ids)
         |> Request.unwrap "albums"
-        |> Request.addOptionals (Optionals.MarketOption())
+        |> Request.withOptionals (fun _ -> MarketOption.Default)
         |> Request.parse<Album list,_>
             
     let tracks (SpotifyId id) =
         request
         |> Request.withUrlPath id
         |> Request.withUrlPath "tracks"
-        |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption())
+        |> Request.withOptionals (fun _ -> MarketLimitAndOffsetOption.Default)
         |> Request.parse<SimpleTrack Paging,_>
 
     let ofSimple (simple: SimpleAlbum) = album simple.id

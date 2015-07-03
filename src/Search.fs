@@ -1,6 +1,6 @@
 ﻿namespace FSpotify
 
-
+open Optionals
 
 module Search = 
     type Query = Query of string
@@ -41,7 +41,7 @@ module Search =
         Request.createFromEndpoint Request.Get "search"
         |> Request.withQueryParameter ("query", query)
         |> Request.withQueryParameter ("type",typesArgument)
-        |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption())
+        |> Request.withOptionals (fun _ -> MarketLimitAndOffsetOption.Default)
         |> Request.mapResponse (fun response ->
             let unwrapAndParse element =
                 if Serializing.hasElement element response then

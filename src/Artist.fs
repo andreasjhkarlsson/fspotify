@@ -2,7 +2,7 @@
 
 open System
 open Misc
-
+open Optionals
 
 type Artist = {
     external_urls: UrlMap
@@ -37,7 +37,7 @@ module Artist =
         artistsRequest
         |> Request.withUrlPath id
         |> Request.withUrlPath "albums"
-        |> Request.addOptionals (Optionals.MarketOffsetLimitAndAlbumTypesOption())
+        |> Request.withOptionals (fun _ -> MarketOffsetLimitAndAlbumTypesOption.Default)
         |> Request.parse<SimpleAlbum Paging,_>
 
     let topTracks (SpotifyId id) (Country country) =

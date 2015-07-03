@@ -1,6 +1,7 @@
 ﻿namespace FSpotify
 
 open System
+open Optionals
 
 type PlaylistTrack = {
     added_at: DateTime // Todo: Handle null values (does not warrant an option type since only very old playlist may return null here)
@@ -42,17 +43,17 @@ module Playlist =
 
     let playlists userId =
         playlistsRequest userId
-        |> Request.addOptionals (Optionals.LimitAndOffsetOption())
+        |> Request.withOptionals (fun _ -> LimitAndOffsetOption.Default)
         |> Request.parse<SimplePlaylist Paging,_>
 
     let playlist userId playlistId =
         playlistRequest userId playlistId
-        |> Request.addOptionals (Optionals.MarketOption()) // Todo: support fields optional(?)
+        |> Request.withOptionals (fun _ -> MarketOption.Default) // Todo: support fields optional(?)
         |> Request.parse<Playlist,_>
 
     let tracks userId playlistId =
         playlistTracksRequest userId playlistId
-        |> Request.addOptionals (Optionals.MarketOffsetAndLimitOption()) // Todo: support fields optional(?)
+        |> Request.withOptionals (fun _ -> MarketLimitAndOffsetOption.Default) // Todo: support fields optional(?)
         |> Request.parse<PlaylistTrack Paging,_>
 
     type playlistInfoArgs = {name: string option; ``public``: bool option}
@@ -72,7 +73,7 @@ module Playlist =
         playlistTracksRequest userId playlistId
         |> Request.withVerb Request.Post
         |> Request.withQueryParameter ("uris",uris)
-        |> Request.addOptionals (Optionals.PositionOption())
+        |> Request.withOptionals (fun _ -> PositionOption.Default)
         |> Request.unwrap "snapshot_id"
         |> Request.mapResponse SpotifyId
 

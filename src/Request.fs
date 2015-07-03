@@ -1,11 +1,12 @@
 ﻿namespace FSpotify
 
-
+open System
 open System.Net
 open System.IO
-open Serializing
 open System.Web
-open System
+open System.Reflection
+open Microsoft.FSharp.Reflection
+open Serializing
 
 exception SpotifyError of string*string
 
@@ -19,10 +20,12 @@ module Request =
 
     type ResponseBuilder<'a> = string -> 'a
 
+    type Parameter = QueryParameter of string*string
+
     type Request<'a,'b> = {
         verb: HttpVerb
         path: string
-        queryParameters: Map<string,string>
+        parameters: Parameter list
         headers: Map<HttpHeader,string>
         body: string
         responseMapper: ResponseBuilder<'a>
@@ -31,27 +34,20 @@ module Request =
 
     let withUrl (url: Uri) (request: Request<'a,'b>) =
         let path = url.GetLeftPart(UriPartial.Path)
-        let queryArgs =
+        let parameters =
             if url.Query.StartsWith "?" then
                 url.Query.Substring(1).Split('&')
                 |> Array.map (fun str -> str.Split('='))
                 |> Array.map (Array.map Uri.UnescapeDataString)
-                |> Array.map (fun keyValue -> keyValue.[0],keyValue.[1])
+                |> Array.map (fun keyValue -> QueryParameter(keyValue.[0],keyValue.[1]))
                 |> Array.toList
-                |> List.foldBack ((<||) Map.add)
-                <| request.queryParameters
+                |> List.append request.parameters
             else
-                request.queryParameters
+                request.parameters
 
-        {request with path = path; queryParameters = queryArgs}
+        {request with path = path; parameters = parameters}
 
     let withVerb verb request ={request with verb = verb}
-        
-    // This is a magical little function. It applies a "builder" object to a request, transforming it.
-    // Use statically resolved type parameters since the generic type(s) of the builder cannot be known.
-    let inline build (builder: ^a when ^a: (member Apply: Request<'b,'c> -> Request<'b,'c>)) (request: Request<'b,'c>) =
-        (^a: (member Apply: Request<'b,'c> -> Request<'b,'c>) (builder, request))
-
 
     type ResultOption<'a> = Success of 'a | Error of string*string
 
@@ -61,26 +57,21 @@ module Request =
             headers = request.headers
             body = request.body
             path = request.path
-            queryParameters = request.queryParameters
+            parameters = request.parameters
             responseMapper = request.responseMapper >> fn
             optionals = request.optionals
         }
 
-
-    let addOptionals<'a,'b,'c> (optionals: 'c) (request: Request<'a,'b>) =
+    let withOptionals (fn: 'b -> 'c) (request: Request<'a,'b>)=
         {
                verb = request.verb
                headers = request.headers
                path = request.path
                body = request.body
-               queryParameters = request.queryParameters
+               parameters = request.parameters
                responseMapper = request.responseMapper
-               optionals = optionals
+               optionals = request.optionals |> fn
         }
-
-
-    let withOptionals (fn: 'a -> Request<'b,'a> -> Request<'b,'a>) (request: Request<'b,'a>)=
-         request |> fn request.optionals
 
     let unwrap<'a> = mapResponse<string,'a,string> << Serializing.unwrap
 
@@ -90,7 +81,7 @@ module Request =
 
     let withUrlPath path (request: Request<'a,'b>) = {request with path = sprintf "%s/%s" request.path path}
 
-    let withQueryParameter (name,value) request = {request with queryParameters = request.queryParameters |> Map.add name value}
+    let withQueryParameter (name,value) request = {request with parameters = QueryParameter(name,value) :: request.parameters}
 
     let withBody body request = {request with body = body}
 
@@ -112,16 +103,61 @@ module Request =
     let withAuthorization {access_token = token; token_type = token_type} =
         withHeader (Custom "Authorization",sprintf "%s %s" token_type token)
 
+    [<AbstractClass>]
+    type OptionalParameter<'a> () =
+        inherit Attribute()
+        abstract member Apply: 'a -> Parameter
+
+    type OptionalQueryParameter<'a>(name,mapper) =
+        inherit OptionalParameter<'a> ()
+        override this.Apply value = QueryParameter(name,mapper value)
+
     let send ({ path = path
-                queryParameters = queryParameters
+                parameters = parameters
                 responseMapper = responseMapper
                 verb = verb
                 body = body
-                headers = headers}) =
+                headers = headers
+                optionals = optionals}) =
+
+        let parameters = 
+            if (box optionals) <> null && FSharpType.IsRecord(optionals.GetType()) then
+                optionals.GetType()
+                |> FSharpType.GetRecordFields
+                |> Array.toList
+                |> List.choose (fun property ->
+                    let attributes =
+                        property.GetCustomAttributes()
+                    let attribute =
+                        attributes
+                        |> Seq.find (fun attribute ->
+
+                            let rec isGenericSubclass (genericBase: Type) (someType: Type) =
+                                if someType.IsGenericType && someType.GetGenericTypeDefinition() = genericBase then
+                                    true
+                                elif someType.BaseType <> null then
+                                    isGenericSubclass genericBase someType.BaseType
+                                else
+                                    false
+                            isGenericSubclass typedefof<OptionalParameter<_>> (attribute.GetType())
+                        )
+                    let value = FSharpValue.GetRecordField(optionals,property)
+                    if value <> null then
+                        let _,fields =
+                            FSharpValue.GetUnionFields(value,value.GetType())
+                        Some <| (attribute.GetType().GetMethod("Apply").Invoke(attribute,[|fields.[0]|]) :?> Parameter)
+                    else
+                        None
+                )
+            else
+                []
+            |> List.append parameters
         
         let queryString =
-            queryParameters
-            |> Map.toList
+            parameters
+            |> List.choose (function
+                | QueryParameter (key,value) -> Some(key,value)
+            )
             |> List.map (fun (key,value) ->
                 sprintf "%s=%s" (Uri.EscapeDataString key) (Uri.EscapeDataString value)
             )
@@ -191,17 +227,13 @@ module Request =
         return trySend operation
     }
 
-    type QueryParameterBuilder(key,value) =
-        member this.Apply<'a,'b> (request: Request<'a,'b>) =
-            request |> withQueryParameter (key,value)
-
     let create verb url = 
         {
             verb = verb
             path = ""
             headers = Map.empty
             body = ""
-            queryParameters = Map.empty
+            parameters = []
             responseMapper = string
             optionals = ()
         }

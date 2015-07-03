@@ -1,5 +1,6 @@
 ﻿namespace FSpotify
 
+open Optionals
 
 module Browse =
     
@@ -8,21 +9,21 @@ module Browse =
     let newReleases =
         request
         |> Request.withUrlPath "new-releases"
-        |> Request.addOptionals (Optionals.CountryOffsetAndLimitOption())
+        |> Request.withOptionals (fun _ -> CountryOffsetAndLimitOption.Default)
         |> Request.unwrap "albums"
         |> Request.parse<SimpleAlbum Paging,_>
 
     let featuredPlaylists =
         request
         |> Request.withUrlPath "featured-playlists"
-        |> Request.addOptionals (Optionals.TimestampLocaleCountryOffsetAndLimitOption())
+        |> Request.withOptionals (fun _ -> TimestampLocaleCountryOffsetAndLimitOption.Default)
         |> Request.unwrap "playlists"
         |> Request.parse<SimplePlaylist Paging,_>
 
     let categories =
         request
         |> Request.withUrlPath "categories"
-        |> Request.addOptionals (Optionals.LocaleCountryOffsetAndLimitOption())
+        |> Request.withOptionals (fun _ -> LocaleCountryOffsetAndLimitOption.Default)
         |> Request.unwrap "categories"
         |> Request.parse<Category Paging,_>
 
@@ -30,12 +31,12 @@ module Browse =
         request
         |> Request.withUrlPath "categories"
         |> Request.withUrlPath id
-        |> Request.addOptionals (Optionals.CountryAndLocaleOption())
+        |> Request.withOptionals (fun _ -> CountryAndLocaleOption.Default)
         |> Request.parse<Category,_>
 
     let categoryPlaylists (SpotifyId id) =
         request
         |> Request.withUrlPath (sprintf "categories/%s/playlists" id)
-        |> Request.addOptionals (Optionals.CountryOffsetAndLimitOption())
+        |> Request.withOptionals (fun _ -> CountryOffsetAndLimitOption.Default)
         |> Request.unwrap "playlists"
         |> Request.parse<SimplePlaylist Paging,_>
