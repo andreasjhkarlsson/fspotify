@@ -16,3 +16,18 @@ module Misc =
             isGenericSubclass genericBase someType.BaseType
         else
             false
+
+    let unsafeCopyAndUpdate<'a,'b> fieldName (value: 'b) (record: 'a) =
+        let value = box value
+        let recordType = record.GetType()
+        
+        let values =
+            FSharpType.GetRecordFields(recordType)
+            |> Array.map (fun field ->
+                if field.Name = fieldName then
+                    box value
+                else
+                    field.GetValue(record)
+            )
+        // Unsafe!
+        FSharpValue.MakeRecord(recordType,values) :?> 'a

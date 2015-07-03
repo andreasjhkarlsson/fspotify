@@ -119,32 +119,20 @@ module Request =
                 body = body
                 headers = headers
                 optionals = optionals}) =
-
+        
+        // Merge parameters with optional mappings
         let parameters = 
             if (box optionals) <> null && FSharpType.IsRecord(optionals.GetType()) then
                 optionals.GetType()
                 |> FSharpType.GetRecordFields
                 |> Array.toList
-                |> List.choose (fun property ->
-                    let attributes =
-                        property.GetCustomAttributes()
+                |> List.choose (fun property -> 
                     let attribute =
-                        attributes
-                        |> Seq.find (fun attribute ->
-
-                            let rec isGenericSubclass (genericBase: Type) (someType: Type) =
-                                if someType.IsGenericType && someType.GetGenericTypeDefinition() = genericBase then
-                                    true
-                                elif someType.BaseType <> null then
-                                    isGenericSubclass genericBase someType.BaseType
-                                else
-                                    false
-                            isGenericSubclass typedefof<OptionalParameter<_>> (attribute.GetType())
-                        )
+                        property.GetCustomAttributes()
+                        |> Seq.find (fun attribute -> attribute.GetType() |> Misc.isGenericSubclass typedefof<OptionalParameter<_>>)
                     let value = FSharpValue.GetRecordField(optionals,property)
                     if value <> null then
-                        let _,fields =
-                            FSharpValue.GetUnionFields(value,value.GetType())
+                        let _,fields = FSharpValue.GetUnionFields(value,value.GetType())
                         Some <| (attribute.GetType().GetMethod("Apply").Invoke(attribute,[|fields.[0]|]) :?> Parameter)
                     else
                         None
@@ -153,6 +141,7 @@ module Request =
                 []
             |> List.append parameters
         
+        // Build query string
         let queryString =
             parameters
             |> List.choose (function

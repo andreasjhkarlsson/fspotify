@@ -108,3 +108,12 @@ module Optionals =
         [<AlbumTypesParameter()>]
         albumTypes: (AlbumType list) option
     } with static member Default = {limit = None; offset = None; market = None; albumTypes = None}
+
+    let inline withMarket<'a,^b when ^b: (member market: Market option)> (market: Market) (request: Request<'a,'b>) =
+        request |> Request.withOptionals (Misc.unsafeCopyAndUpdate "market" (Some market))
+
+    let inline withCountry<'a,^b when ^b: (member market: Country option)> (country: Country) (request: Request<'a,'b>) =
+        request |> Request.withOptionals (Misc.unsafeCopyAndUpdate "country" (Some country))
+
+    let inline withLocale<'a,^b when ^b: (member locale: Locale option)> (locale: Locale) (request: Request<'a,'b>) =
+        request |> Request.withOptionals (Misc.unsafeCopyAndUpdate "locale" (Some locale))
