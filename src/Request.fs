@@ -14,20 +14,22 @@ module Request =
 
     type HttpVerb = Get | Post | Put | Delete
 
+    type HttpBody = Form of Map<string,string> | Json of obj | Empty
+
     type HttpHeader =
     | ContentType
     | Custom of string
 
     type ResponseBuilder<'a> = string -> 'a
 
-    type Parameter = QueryParameter of string*string
+    type Parameter = QueryParameter of string*string | JsonFieldParameter of string*string
 
     type Request<'a,'b> = {
         verb: HttpVerb
         path: string
         parameters: Parameter list
         headers: Map<HttpHeader,string>
-        body: string
+        body: HttpBody
         responseMapper: ResponseBuilder<'a>
         optionals: 'b
     }
@@ -47,7 +49,7 @@ module Request =
 
         {request with path = path; parameters = parameters}
 
-    let withVerb verb request ={request with verb = verb}
+    let withVerb verb request = {request with verb = verb}
 
     type ResultOption<'a> = Success of 'a | Error of string*string
 
@@ -87,18 +89,9 @@ module Request =
 
     let withHeader (name,value) request = {request with headers = request.headers |> Map.add name value}
 
-    let withFormBody args = 
-        let args =
-            args  
-            |> List.map (fun (key,value) ->
-                sprintf "%s=%s" (Uri.EscapeDataString(key)) (Uri.EscapeDataString(value))
-            )
-            |> String.concat "&"
-        
-        withHeader (ContentType, "application/x-www-form-urlencoded") >> withBody args
+    let withFormBody args = Form args |> withBody  
 
-    let withJsonBody data =
-        withHeader (ContentType, "application/json") >> withBody (Serializing.serialize data)
+    let withJsonBody data = Json data |> withBody
 
     let withAuthorization {access_token = token; token_type = token_type} =
         withHeader (Custom "Authorization",sprintf "%s %s" token_type token)
@@ -106,10 +99,12 @@ module Request =
     let withEmptyResult<'a,'b> = mapResponse<'a,'b,unit> (fun _ -> ())
 
     let withJsonField (name,value) ({body = body} as request) =
-        if body = "" then
-            withJsonBody ([name,value] |> Map.ofList) request
-        else
-            (deserialize<Map<IComparable,obj>> body |> Map.add name value |> withJsonBody) request
+        request
+        |> (match body with
+            | Json obj -> (obj :?> Map<string,obj>)
+            | _ -> Map.empty
+            |> Map.add name value
+            |> withJsonBody)
 
     [<AbstractClass>]
     type OptionalParameter<'a> () =
@@ -119,6 +114,10 @@ module Request =
     type OptionalQueryParameter<'a>(name,mapper) =
         inherit OptionalParameter<'a> ()
         override this.Apply value = QueryParameter(name,mapper value)
+
+    type OptionalJsonFieldParameter<'a>(name,mapper) =
+        inherit OptionalParameter<'a>()
+        override this.Apply value = JsonFieldParameter(name,mapper value)
 
     let send ({ path = path
                 parameters = parameters
@@ -154,6 +153,7 @@ module Request =
             parameters
             |> List.choose (function
                 | QueryParameter (key,value) -> Some(key,value)
+                | _ -> None
             )
             |> List.map (fun (key,value) ->
                 sprintf "%s=%s" (Uri.EscapeDataString key) (Uri.EscapeDataString value)
@@ -181,12 +181,27 @@ module Request =
                     httpRequest.Headers.Add(name,value)
             )
 
-            if body <> "" then
+
+            let writeBody contentType (body: string) =
+                httpRequest.ContentType <- contentType
                 use requestStream = httpRequest.GetRequestStream()
                 use requestWriter = new StreamWriter(requestStream)
                 requestWriter.Write(body)
                 requestWriter.Flush()
                 requestWriter.Close()
+            
+            match body with
+            | Json obj ->
+                serialize obj |> writeBody "application/json"
+            | Form map ->
+                Map.toList map
+                |> List.map (fun (key,value) ->
+                    sprintf "%s=%s" (Uri.EscapeDataString(key)) (Uri.EscapeDataString(value))
+                )
+                |> String.concat "&"
+                |> writeBody "application/x-www-form-urlencoded"
+            | Empty -> ()
+
 
             use httpResponse = httpRequest.GetResponse()
             use stream = httpResponse.GetResponseStream()
@@ -229,7 +244,7 @@ module Request =
             verb = verb
             path = ""
             headers = Map.empty
-            body = ""
+            body = Empty
             parameters = []
             responseMapper = string
             optionals = ()
