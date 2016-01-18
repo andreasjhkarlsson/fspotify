@@ -59,7 +59,7 @@ module Authorization =
         token.refresh_token |> Option.map(fun refresh_token ->
             let baseRequest = clientCredentials id secret
             baseRequest
-            |> Request.withFormBody (Map.ofList ["grant_type","refresh_token";"code",refresh_token])
+            |> Request.withFormBody (Map.ofList ["grant_type","refresh_token";"refresh_token",refresh_token])
         )
 
 

@@ -213,13 +213,19 @@ module Request =
             let responseStream = error.Response.GetResponseStream()
             let errorBody = (new StreamReader(responseStream)).ReadToEnd()
             let error =
+
+                let defaultError message =
+                    { status = (error.Response :?> HttpWebResponse).StatusCode
+                              |> LanguagePrimitives.EnumToValue
+                              |> string
+                      message = message }
+
                 if errorBody <> "" then
-                    (Serializing.unwrap "error" errorBody) |> deserialize<ErrorObject>
-                else
-                    {status = (error.Response :?> HttpWebResponse).StatusCode
-                                |> LanguagePrimitives.EnumToValue
-                                |> string
-                     message = error.Message}
+                    try
+                        (Serializing.unwrap "error" errorBody) |> deserialize<ErrorObject>
+                    with
+                    | :? Newtonsoft.Json.JsonReaderException -> defaultError  errorBody                       
+                else defaultError error.Message
             printfn "Debug: Spotify returned an error (%s: %s)" error.status error.message
             raise <| SpotifyError(error.status,error.message)
 
