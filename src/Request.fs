@@ -35,6 +35,22 @@ module Request =
     }
 
     let withUrl (url: Uri) (request: Request<'a,'b>) =
+
+        let appendUnique (l1: Parameter list) l2 =
+            let hasQueryParam name list =
+                list |> List.exists (fun item ->
+                    match item with
+                    | QueryParameter (itemName,_) -> name = itemName
+                    | _ -> false
+                )
+
+            l1 |> List.filter (fun item ->
+                match item with
+                | QueryParameter (name,_) -> l2 |> hasQueryParam name |> not
+                | _ -> true
+            )
+            |> List.append l2
+
         let path = url.GetLeftPart(UriPartial.Path)
         let parameters =
             if url.Query.StartsWith "?" then
@@ -43,7 +59,7 @@ module Request =
                 |> Array.map (Array.map Uri.UnescapeDataString)
                 |> Array.map (fun keyValue -> QueryParameter(keyValue.[0],keyValue.[1]))
                 |> Array.toList
-                |> List.append request.parameters
+                |> appendUnique request.parameters
             else
                 request.parameters
 
