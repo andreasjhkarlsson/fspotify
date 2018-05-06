@@ -216,7 +216,9 @@ module Request =
                 )
                 |> String.concat "&"
                 |> writeBody "application/x-www-form-urlencoded"
-            | Empty -> ()
+            | Empty ->
+                httpRequest.ContentLength <- 0L
+                ()
 
 
             use httpResponse = httpRequest.GetResponse()
