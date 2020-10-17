@@ -1,0 +1,3 @@
+[submodule "lib/Newtonsoft.Json.FSharp"]
+	path = lib/Newtonsoft.Json.FSharp
+	url = https://github.com/andreasjhkarlsson/Newtonsoft.Json.FSharp

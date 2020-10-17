@@ -9,10 +9,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>FSpotify_Examples</RootNamespace>
     <AssemblyName>FSpotify_Examples</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>FSpotify-Examples</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,7 +57,7 @@
   <ItemGroup>
     <ProjectReference Include="..\src\FSpotify.fsproj">
       <Name>FSpotify</Name>
-      <Project>{a45308db-8c00-4d8d-b94c-c657028cae48}</Project>
+      <Project>{66340db9-6732-42a0-86c6-9c7c0ddc022f}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

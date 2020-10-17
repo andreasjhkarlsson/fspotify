@@ -10,11 +10,12 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FSpotify_Test</RootNamespace>
     <AssemblyName>FSpotify_Test</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
     <Name>FSpotify-Test</Name>
     <NuGetPackageImportStamp>4f7379f5</NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -90,15 +91,17 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <ProjectReference Include="..\src\FSpotify.fsproj">
-      <Name>FSpotify</Name>
-      <Project>{a45308db-8c00-4d8d-b94c-c657028cae48}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.1\lib\net20\xunit.dll</HintPath>
       <Private>True</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\FSpotify.fsproj">
+      <Name>FSpotify</Name>
+      <Project>{66340db9-6732-42a0-86c6-9c7c0ddc022f}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

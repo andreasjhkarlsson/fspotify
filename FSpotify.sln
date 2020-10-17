@@ -1,16 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSpotify", "src\FSpotify.fsproj", "{A45308DB-8C00-4D8D-B94C-C657028CAE48}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSpotify-Examples", "examples\FSpotify-Examples.fsproj", "{E5CB492F-9CF1-4404-853A-7358C5CA8A45}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A45308DB-8C00-4D8D-B94C-C657028CAE48} = {A45308DB-8C00-4D8D-B94C-C657028CAE48}
-	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSpotify-Test", "test\FSpotify-Test.fsproj", "{4226668B-E355-4CE5-9587-6121A2B3C25D}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSpotify", "src\FSpotify.fsproj", "{66340DB9-6732-42A0-86C6-9C7C0DDC022F}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Newtonsoft.Json.FSharp", "lib\Newtonsoft.Json.FSharp\src\JsonNet\Newtonsoft.Json.FSharp.fsproj", "{6E2FE297-8AC8-4A69-BA8D-517DEEFB0B68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,10 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A45308DB-8C00-4D8D-B94C-C657028CAE48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A45308DB-8C00-4D8D-B94C-C657028CAE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A45308DB-8C00-4D8D-B94C-C657028CAE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A45308DB-8C00-4D8D-B94C-C657028CAE48}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5CB492F-9CF1-4404-853A-7358C5CA8A45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5CB492F-9CF1-4404-853A-7358C5CA8A45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5CB492F-9CF1-4404-853A-7358C5CA8A45}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,8 +25,19 @@ Global
 		{4226668B-E355-4CE5-9587-6121A2B3C25D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4226668B-E355-4CE5-9587-6121A2B3C25D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4226668B-E355-4CE5-9587-6121A2B3C25D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66340DB9-6732-42A0-86C6-9C7C0DDC022F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66340DB9-6732-42A0-86C6-9C7C0DDC022F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66340DB9-6732-42A0-86C6-9C7C0DDC022F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66340DB9-6732-42A0-86C6-9C7C0DDC022F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E2FE297-8AC8-4A69-BA8D-517DEEFB0B68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E2FE297-8AC8-4A69-BA8D-517DEEFB0B68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E2FE297-8AC8-4A69-BA8D-517DEEFB0B68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E2FE297-8AC8-4A69-BA8D-517DEEFB0B68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2BD3874D-F9EB-42D6-B10E-C63FD4B8EAC1}
 	EndGlobalSection
 EndGlobal
